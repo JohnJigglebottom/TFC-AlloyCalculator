@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TFC Alloy Calculator</title>
+  <style>
+    :root {
+      --bg-color: #f0f2f5;
+      --surface-color: #ffffff;
+      --text-color: #2c3e50;       /* Original text color */
+      --border-color: #e1e4e8;
+      --primary-color: #3B82F6;  /* Bright blue */
+      --hover-color: #4F46E5;    /* Indigo */
+      --accent-color: #2563EB;   /* Royal blue */
+      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --input-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.06),
+        0 1px 2px rgba(0, 0, 0, 0.08);  /* Added outer shadow */
+      --chart-bg: #ffffff;
+      --input-bg: #f8fafc;
+      --chart-border: #fff;
+      --glass-bg: rgba(255, 255, 255, 0.25);  /* More opaque background */
+      --glass-border: rgba(0, 0, 0, 0.08);    /* Darker border */
+      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);  /* Stronger shadow */
+      --glass-highlight: rgba(255, 255, 255, 0.05);
+      --glass-glow: none; /* Remove radial gradient */
+      --result-bg: rgba(255, 255, 255, 0.15);
+      --result-border: rgba(255, 255, 255, 0.2);
+      --gradient-start: #f8fafc;
+      --gradient-end: #e2e8f0;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #1a1c1e;
+      --surface-color: #2d3436;
+      --text-color: #e0e0e0;
+      --border-color: #40454a;
+      --primary-color: #818CF8;    /* Indigo */
+      --hover-color: #E879F9;      /* Pink */
+      --accent-color: #6366F1;     /* Bright Indigo */
+      --chart-bg: #2d3436;
+      --input-bg: #232628;
+      --chart-border: #2d3436;
+      --glass-bg: rgba(18, 18, 18, 0.2);
+      --glass-border: rgba(255, 255, 255, 0.03);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      --glass-highlight: rgba(255, 255, 255, 0.02);
+      --glass-glow: none; /* Remove radial gradient */
+      --result-bg: rgba(18, 18, 18, 0.25);
+      --result-border: rgba(255, 255, 255, 0.05);
+      --gradient-start: var(--bg-color);
+      --gradient-end: var(--surface-color);
+    }
+
+    [data-theme="dark"] .alloy-section,
+    [data-theme="dark"] .reverse-section,
+    [data-theme="dark"] .ore-input,
+    [data-theme="dark"] .ratio-container,
+    [data-theme="dark"] .result {
+      backdrop-filter: blur(8px) contrast(0.9);
+      -webkit-backdrop-filter: blur(8px) contrast(0.9);
+      background-image: 
+        linear-gradient(to right, 
+          rgba(255,255,255,0.03) 1px, 
+          transparent 1px),
+        linear-gradient(to bottom, 
+          rgba(255,255,255,0.03) 1px, 
+          transparent 1px),
+        url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c8TV1mAAAAG3RSTlNAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAvEOwtAAAFVklEQVR4XpWWB67c2BUFb3g557T/hRo9/WUMZHlgr4Bg8Z4qQgQJlHI4A8SzFVrapvmTF9O7dmYRFZ60YiBhJRCgh1FYhiLAmdvX0CzTOpNE77ME0Zty/nWWzchDtiqrmQDeuv3powQ5ta2eN0FY0InkqDD73lT9c9lEzwUNqgFHs9VQce3TVClFCQrSTfOiYkVJQBmpbq2L6iZavPnAPcoU0dSw0SUTqz/GtrGuXfbyyBniKykOWQWGqwwMA7QiYAxi+IlPdqo+hYHnUt5ZPfnsHJyNiDtnpJyayNBkF6cWoYGAMY92U2hXHF/C1M8uP/ZtYdiuj26UdAdQQSXQErwSOMzt/XWRWAz5GuSBIkwG1H3FabJ2OsUOUhGC6tK4EMtJO0ttC6IBD3kM0ve0tJwMdSfjZo+EEISaeTr9P3wYrGjXqyC1krcKdhMpxEnt5JetoulscpyzhXN5FRpuPHvbeQaKxFAEB6EN+cYN6xD7RYGpXpNndMmZgM5Dcs3YSNFDHUo2LGfZuukSWyUYirJAdYbF3MfqEKmjM+I2EfhA94iG3L7uKrR+GdWD73ydlIB+6hgref1QTlmgmbM3/LeX5GI1Ux1RWpgxpLuZ2+I+IjzZ8wqE4nilvQdkUdfhzI5QDWy+kw5Wgg2pGpeEVeCCA7b85BO3F9DzxB3cdqvBzWcmzbyMiqhzuYqtHRVG2y4x+KOlnyqla8AoWWpuBoYRxzXrfKuILl6SfiWCbjxoZJUaCBj1CjH7GIaDbc9kqBY3W/Rgjda1iqQcOJu2WW+76pZC9QG7M00dffe9hNnseupFL53r8F7YHSwJWUKP2q+k7RdsxyOB11n0xtOvnW4irMMFNV4H0uqwS5ExsmP9AxbDTc9JwgneAT5vTiUSm1E7BSflSt3bfa1tv8Di3R8n3Af7MNWzs49hmauE2wP+ttrq+AsWpFG2awvsuOqbipWHgtuvuaAE+A1Z/7gC9hesnr+7wqCwG8c5yAg3AL1fm8T9AZtp/bbJGwl1pNrE7RuOX7PeMRUERVaPpEs+yqeoSmuOlokqw49pgomjLeh7icHNlG19yjs6XXOMedYm5xH2YxpV2tc0Ro2jJfxC50ApuxGob7lMsxfTbeUv07TyYxpeLucEH1gNd4IKH2LAg5TdVhlCafZvpskfncCfx8pOhJzd76bJWeYFnFciwcYfubRc12Ip/ppIhA1/mSZ/RxjFDrJC5xifFjJpY2Xl5zXdguFqYyTR1zSp1Y9p+tktDYYSNflcxI0iyO4TPBdlRcpeqjK/piF5bklq77VSEaA+z8qmJTFzIWiitbnzR794USKBUaT0NTEsVjZqLaFVqJoPN9ODG70IPbfBHKK+/q/AWR0tJzYHRULOa4MP+W/HfGadZUbfw177G7j/OGbIs8TahLyynl4X4RinF793Oz+BU0saXtUHrVBFT/DnA3ctNPoGbs4hRIjTok8i+algT1lTHi4SxFvONKNrgQFAq2/gFnWMXgwffgYMJpiKYkmW3tTg3ZQ9Jq+f8XN+A5eeUKHWvJWJ2sgJ1Sop+wwhqFVijqWaJhwtD8MNlSBeWNNWTa5Z5kPZw5+LbVT99wqTdx29lMUH4OIG/D86ruKEauBjvH5xy6um/Sfj7ei6UUVk4AIl3MyD4MSSTOFgSwsH/QJWaQ5as7ZcmgBZkzjjU1UrQ74ci1gWBCSGHtuV1H2mhSnO3Wp/3fEV5a+4wz//6qy8JxjZsmxxy5+4w9CDNJY09T072iKG0EnOS0arEYgXqYnXcYHwjTtUNAcMelOd4xpkoqiTYICWFq0JSiPfPDQdnt+4/wuqcXY47QILbgAAAABJRU5ErkJggg=='),
+        var(--glass-bg);
+      background-blend-mode: overlay;
+      background-size: cover;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 2rem;
+      background: linear-gradient(135deg, 
+        var(--gradient-start) 0%,
+        var(--gradient-end) 100%);
+      color: var(--text-color);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    body * {
+      transition: background-color 0.3s ease,
+                  color 0.3s ease,
+                  border-color 0.3s ease,
+                  box-shadow 0.3s ease;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.8rem;
+      font-weight: 600;
+      color: var(--text-color);
+      margin-bottom: 2rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--text-color);
+      border-bottom: 3px solid var(--accent-color);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .alloy-section, .reverse-section, .ore-input, .ratio-container, .result {
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px) saturate(180%) brightness(105%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(105%);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border-radius: 20px;
+      transition: transform 0.2s ease,
+                  background-color 0.3s ease,
+                  border-color 0.3s ease,
+                  box-shadow 0.3s ease;
+    }
+
+    .alloy-section:hover, .reverse-section:hover {
+      transform: translateY(-2px);
+    }
+
+    select, input {
+      padding: 0.8rem;
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 500;  /* Slightly bolder text */
+      transition: all 0.3s ease;
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px) saturate(180%) contrast(110%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%) contrast(110%);
+      color: var(--text-color);
+      box-shadow: var(--input-shadow);
+    }
+
+    select:focus, input:focus {
+      border-color: var(--primary-color);
+      box-shadow: var(--input-shadow), 0 0 0 3px rgba(99, 102, 241, 0.15);
+      outline: none;
+      transform: translateY(-2px);
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      padding-right: 2.5rem;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 0.7rem center;
+      background-size: 1.2em;
+    }
+
+    @media (pointer: fine) {
+      select option {
+        background: var(--surface-color);
+        color: var(--text-color);
+        padding: 0.8rem;
+        transition: all 0.2s ease;
+      }
+
+      select option:hover {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      select:focus {
+        animation: selectPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+    }
+
+    @keyframes selectPop {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.02);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @media not all and (pointer: coarse) {
+      select::-webkit-listbox {
+        background: var(--surface-color);
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        margin-top: 4px;
+        animation: dropdownAppear 0.2s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
+    }
+
+    @keyframes dropdownAppear {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .ore-input {
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px) saturate(180%) brightness(105%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(105%);
+      padding: 1rem;
+      border-radius: 20px;
+      margin-bottom: 0.8rem;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    #oreContainer {
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .ore-input:hover {
+      background: var(--glass-bg);
+      transform: translateY(-1px);
+      box-shadow: var(--glass-shadow);
+    }
+
+    .ore-input.removing {
+      animation: slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    button {
+      background: linear-gradient(135deg, 
+        var(--accent-color) 0%,
+        color-mix(in srgb, var(--accent-color), var(--hover-color) 50%) 85%,
+        var(--hover-color) 100%);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-weight: 600;
+      letter-spacing: 0.025em;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg,
+        var(--hover-color) 0%,
+        color-mix(in srgb, var(--hover-color), var(--accent-color) 50%) 85%,
+        var(--accent-color) 100%);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button.remove-ore {
+      background: linear-gradient(135deg,
+        var(--primary-color) 0%,
+        color-mix(in srgb, var(--primary-color), var(--hover-color) 50%) 85%,
+        var(--hover-color) 100%);
+    }
+
+    button.remove-ore:hover {
+      background: linear-gradient(135deg, var(--hover-color) 0%, var(--accent-color) 100%);
+    }
+
+    .ratio-container {
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px) saturate(180%) brightness(105%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(105%);
+      padding: 1.5rem;
+      border-radius: 20px;
+      margin: 1.5rem 0;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--input-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .ratio-slider-container {
+      width: 100%;
+      max-width: 300px;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .ratio-slider {
+      width: 100%;
+      height: 2px;
+      background: #e1e4e8;
+      border-radius: 999px;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .ratio-slider::-webkit-slider-runnable-track {
+      height: 2px;
+      border-radius: 999px;
+    }
+
+    .ratio-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      cursor: grab;
+      margin-top: -6px;
+      position: relative;
+      z-index: 2;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .ratio-slider:hover::-webkit-slider-thumb {
+      transform: scale(1.2);
+      box-shadow: 0 0 0 8px rgba(74, 144, 226, 0.1);
+    }
+
+    .ratio-slider:active::-webkit-slider-thumb {
+      transform: scale(1.4);
+      background: var(--hover-color);
+      cursor: grabbing;
+      box-shadow: 0 0 0 12px rgba(74, 144, 226, 0.2);
+    }
+
+    [data-theme="dark"] .ratio-slider {
+      background: #40454a;
+    }
+
+    [data-theme="dark"] .ratio-slider:hover::-webkit-slider-thumb {
+      box-shadow: 0 0 0 8px rgba(74, 144, 226, 0.15);
+    }
+
+    [data-theme="dark"] .ratio-slider:active::-webkit-slider-thumb {
+      box-shadow: 0 0 0 12px rgba(74, 144, 226, 0.25);
+    }
+
+    .ratio-label {
+      display: block;
+      margin-top: 0.5rem;
+      font-size: 0.9em;
+      color: var(--text-color);
+      transition: opacity 0.2s ease;
+      opacity: 0.9;
+    }
+
+    .ratio-slider:active + .ratio-label {
+      opacity: 1;
+    }
+
+    .result {
+      background: var(--glass-bg);
+      border: 1px solid var(--result-border);
+      backdrop-filter: blur(24px) saturate(180%) brightness(105%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(105%);
+      padding: 1.5rem;
+      border-radius: 20px;
+      margin-top: 1.5rem;
+      line-height: 1.8;
+      transition: all 0.3s ease;
+    }
+
+    .result.updating {
+      animation: fadeScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .chart-container {
+      background: var(--chart-bg);
+      border-radius: 16px;
+      padding: 1rem;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border-color);
+      transition: background-color 0.3s ease,
+                  border-color 0.3s ease;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding: 1rem;
+      color: var(--text-color);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    footer .author {
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    
+    footer .beta-text {
+      opacity: 0.8;
+      font-style: italic;
+    }
+
+    label {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-color);
+      opacity: 0.9;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      border-radius: 24px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px) contrast(0.95);
+      -webkit-backdrop-filter: blur(12px) contrast(0.95);
+      border: 1px solid var(--glass-border);
+      color: var(--text-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--card-shadow);
+      z-index: 1000;
+      transition: transform 0.2s ease,
+                  background-color 0.3s ease,
+                  border-color 0.3s ease,
+                  color 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-2px);
+    }
+
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+      transition: stroke 0.3s ease;
+    }
+
+    .theme-toggle path,
+    .theme-toggle circle {
+      transition: all 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    }
+
+    @keyframes fadeScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .metal-entry {
+      position: relative;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+    }
+
+    .metal-entry:hover {
+      background: var(--glass-highlight);
+    }
+
+    .toggle-measurements {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      margin-left: 8px;
+      cursor: pointer;
+      color: var(--accent-color);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .toggle-measurements.expanded {
+      transform: rotate(180deg);
+    }
+
+    .measurements {
+      max-height: 0;
+      overflow: hidden;
+      margin-left: 1.5rem;
+      margin-top: 0;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 0.95em;
+      color: var(--text-color);
+    }
+
+    .measurements.expanded {
+      max-height: 100px;
+      margin-top: 0.5rem;
+      opacity: 0.9;
+    }
+
+    .measurement-toggles {
+      display: inline-flex;
+      gap: 0.3rem;
+      margin: 0 0.5rem;
+    }
+
+    .toggle-unit {
+      font-size: 0.85rem;
+      padding: 0.15rem 0.4rem;
+      border: none;
+      background: transparent;
+      color: var(--accent-color);
+      opacity: 0.6;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-unit:hover {
+      transform: translateY(-1px);
+      opacity: 0.8;
+    }
+
+    .toggle-unit.active {
+      opacity: 1;
+    }
+
+    .toggle-unit.clicked {
+      animation: pulseOpacity 0.5s ease;
+    }
+
+    @keyframes pulseOpacity {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: var(--final-opacity, 1); }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>TFC Alloy Calculator</h1>
+
+  <div class="alloy-section">
+    <h2>Ore to Alloy</h2>
+    <div class="section-layout">
+      <div class="input-and-results">
+        <label for="plannedAlloy">Select Planned Alloy:</label>
+        <select id="plannedAlloy" onchange="stabilizeAlloy(); updatePlannedAlloy();">
+          <option value="">-- Select Alloy --</option>
+          <option value="Bronze">[CuSn3] Bronze</option>
+          <option value="Bismuth Bronze">[CuBiSn] Bismuth Bronze</option>
+          <option value="Black Bronze">[CuAuAg] Black Bronze</option>
+          <option value="Brass">[CuZn] Brass</option>
+          <option value="Rose Gold">[CuAu] Rose Gold</option>
+          <option value="Sterling Silver">[CuAg] Sterling Silver</option>
+          <option value="Weak Black Steel">[StNiBB] Weak Black Steel</option>
+          <option value="Weak Blue Steel">[StBBBr] Weak Blue Steel</option>
+          <option value="Weak Red Steel">[StRGS] Weak Red Steel</option>
+        </select>
+        <div id="oreContainer">
+          <div class="ore-input">
+            <select class="ore-select">
+              <option value="Copper">[Cu] Copper</option>
+              <option value="Tin">[Sn] Tin</option>
+              <option value="Zinc">[Zn] Zinc</option>
+              <option value="Bismuth">[Bi] Bismuth</option>
+              <option value="Gold">[Au] Gold</option>
+              <option value="Silver">[Ag] Silver</option>
+              <option value="Nickel">[Ni] Nickel</option>
+              <option value="Steel">[St] Steel</option>
+              <option value="Black Steel">[StNiBB] Black Steel</option>
+              <option value="Black Bronze">[CuAuAg] Black Bronze</option>
+              <option value="Bismuth Bronze">[CuBiSn] Bismuth Bronze</option>
+              <option value="Brass">[CuZn] Brass</option>
+              <option value="Rose Gold">[CuAu] Rose Gold</option>
+              <option value="Sterling Silver">[CuAg] Sterling Silver</option>
+            </select>
+            <input type="text" placeholder="Amount (Mb or B)" class="ore-amount" oninput="stabilizeAlloy()">
+            <button class="remove-ore" onclick="removeOreInput(this)">Remove</button>
+          </div>
+        </div>
+        <button onclick="addOreInput()">+ Add Ore</button>
+        <div class="result" id="alloyResult"></div>
+      </div>
+      <div class="chart-container">
+        <canvas id="oreChart" class="chart"></canvas>
+      </div>
+    </div>
+    <div id="plannerResult"></div>
+  </div>
+
+  <div class="reverse-section">
+    <h2>Alloy to Ores</h2>
+    <div class="section-layout">
+      <div class="input-and-results">
+        <label for="alloyType">Select Alloy:</label>
+        <select id="alloyType">
+          <option value="Bronze">[CuSn3] Bronze</option>
+          <option value="Bismuth Bronze">[CuBiSn] Bismuth Bronze</option>
+          <option value="Black Bronze">[CuAuAg] Black Bronze</option>
+          <option value="Brass">[CuZn] Brass</option>
+          <option value="Rose Gold">[CuAu] Rose Gold</option>
+          <option value="Sterling Silver">[CuAg] Sterling Silver</option>
+          <option value="Weak Black Steel">[StNiBB] Weak Black Steel</option>
+          <option value="Weak Blue Steel">[StBBBr] Weak Blue Steel</option>
+          <option value="Weak Red Steel">[StRGS] Weak Red Steel</option>
+        </select>
+        <label for="alloyAmount">Amount (Mb or B):</label>
+        <input type="text" id="alloyAmount" placeholder="e.g. 500Mb or 2B">
+        <div class="ratio-container">
+          <label>Adjust Ratio:</label>
+          <div class="ratio-slider-container">
+            <input type="range" class="ratio-slider" min="0" max="100" value="50" id="alloyRatioSlider" oninput="updateAlloyRatio()">
+            <span class="ratio-label" id="alloyRatioLabel">50/50</span>
+          </div>
+          <button onclick="resetRatio()">Reset Ratio</button>
+        </div>
+        <div class="result" id="oreResult"></div>
+      </div>
+      <div class="chart-container">
+        <canvas id="alloyChart" class="chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const alloyRatios = {
+      Bronze: { Copper: 88, Tin: 12 },
+      "Bismuth Bronze": { Copper: 55, Zinc: 25, Bismuth: 15 },
+      "Black Bronze": { Copper: 60, Gold: 20, Silver: 20 },
+      Brass: { Copper: 90, Zinc: 10 },
+      "Rose Gold": { Copper: 25, Gold: 75 },
+      "Sterling Silver": { Silver: 70, Copper: 30 },
+      "Weak Black Steel": { Steel: 60, Nickel: 20, "Black Bronze": 20 },
+      "Weak Blue Steel": { 
+        "Black Steel": 50,
+        "Bismuth Bronze": 10, 
+        "Sterling Silver": 10,
+        "Steel": 20 
+      },
+      "Weak Red Steel": { 
+        "Black Steel": 50,
+        "Rose Gold": 10, 
+        "Brass": 10,
+        "Steel": 20 
+      },
+    };
+
+    const oreColors = {
+      Copper: '#b87333',
+      Tin: '#d9d9d9',
+      Zinc: '#c2c2c2',
+      Bismuth: '#e5e4e2',
+      Gold: '#ffd700',
+      Silver: '#c0c0c0',
+      Nickel: '#a5a5a5',
+      Steel: '#43464b',
+      "Black Steel": '#1a1c1e', // Darker, more realistic black steel color
+      "Black Bronze": '#8b4513',
+      "Bismuth Bronze": '#cd7f32',
+      Brass: '#b5a642',
+      "Rose Gold": '#b76e79',
+      "Sterling Silver": '#dcdcdc',
+      "Weak Black Steel": '#2f4f4f',
+      "Weak Blue Steel": '#4682b4',
+      "Weak Red Steel": '#8b0000',
+    };
+
+    const ORES = ['Copper', 'Tin', 'Zinc', 'Bismuth', 'Gold', 'Silver', 'Nickel'];
+    const ALLOYS = ['Steel', 'Black Steel', 'Black Bronze', 'Bismuth Bronze', 'Brass', 'Rose Gold', 'Sterling Silver'];
+    const MEASUREMENTS_DEFAULT = {
+      ingot: { size: 100, enabled: true },
+      briquette: { size: 80, enabled: true },
+      pellet: { size: 20, enabled: true },
+      powder: { size: 5, enabled: true }
+    };
+
+    const metalMeasurementStates = new Map();
+
+    let oreChart, alloyChart;
+
+    function updateOreChart(composition) {
+      const ctx = document.getElementById('oreChart').getContext('2d');
+      const labels = Object.keys(composition).map(ore => {
+        const symbol = {
+          'Copper': '[Cu]',
+          'Tin': '[Sn]',
+          'Zinc': '[Zn]',
+          'Bismuth': '[Bi]',
+          'Gold': '[Au]',
+          'Silver': '[Ag]',
+          'Nickel': '[Ni]',
+          'Steel': '[St]',
+          'Black Steel': '[StNiBB]',
+          'Black Bronze': '[CuAuAg]',
+          'Bismuth Bronze': '[CuBiSn]',
+          'Brass': '[CuZn]',
+          'Rose Gold': '[CuAu]',
+          'Sterling Silver': '[CuAg]'
+        }[ore] || '';
+        return `${symbol} ${ore}`;
+      });
+      const data = Object.values(composition);
+      const colors = labels.map(label => oreColors[label.replace(/\[.*?\]\s*/, '')] || `hsl(${Math.random() * 360}, 70%, 70%)`);
+
+      if (oreChart) oreChart.destroy();
+      oreChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: colors,
+            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-border'),
+            borderWidth: 2,
+            hoverOffset: 15,
+            borderRadius: 8,
+          }],
+        },
+        options: {
+          animation: { 
+            duration: 1000,
+            animateRotate: true,
+            animateScale: true
+          },
+          cutout: '60%',
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                padding: 15,
+                boxWidth: 15,
+                font: {
+                  size: 12,
+                  weight: '500'
+                },
+                color: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+                usePointStyle: true,
+                pointStyle: 'circle'
+              }
+            },
+            tooltip: {
+              backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--surface-color'),
+              titleColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+              bodyColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+              bodyFont: {
+                size: 13
+              },
+              padding: 12,
+              boxPadding: 8,
+              borderColor: getComputedStyle(document.documentElement).getPropertyValue('--border-color'),
+              borderWidth: 1,
+              cornerRadius: 8,
+              callbacks: {
+                label: function(context) {
+                  return ` ${context.label}: ${context.parsed.toFixed(1)}%`;
+                }
+              }
+            }
+          },
+          layout: {
+            padding: {
+              top: 10,
+              right: 20,
+              bottom: 10,
+              left: 10
+            }
+          },
+          responsive: true,
+          maintainAspectRatio: false,
+        },
+      });
+    }
+
+    function updateAlloyChart(components) {
+      const ctx = document.getElementById('alloyChart').getContext('2d');
+      const labels = components.map(c => c.name);
+      const data = components.map(c => c.percent);
+      const colors = labels.map(label => oreColors[label.replace(/\[.*?\]\s*/, '')] || `hsl(${Math.random() * 360}, 70%, 70%)`);
+
+      if (alloyChart) alloyChart.destroy();
+      alloyChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: colors,
+            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-border'),
+            borderWidth: 2,
+            hoverOffset: 15,
+            borderRadius: 8,
+          }],
+        },
+        options: {
+          animation: { 
+            duration: 1000,
+            animateRotate: true,
+            animateScale: true
+          },
+          cutout: '60%',
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                padding: 15,
+                boxWidth: 15,
+                font: {
+                  size: 12,
+                  weight: '500'
+                },
+                color: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+                usePointStyle: true,
+                pointStyle: 'circle'
+              }
+            },
+            tooltip: {
+              backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--surface-color'),
+              titleColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+              bodyColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+              bodyFont: {
+                size: 13
+              },
+              padding: 12,
+              boxPadding: 8,
+              borderColor: getComputedStyle(document.documentElement).getPropertyValue('--border-color'),
+              borderWidth: 1,
+              cornerRadius: 8,
+              callbacks: {
+                label: function(context) {
+                  return ` ${context.label}: ${context.parsed.toFixed(1)}%`;
+                }
+              }
+            }
+          },
+          layout: {
+            padding: {
+              top: 10,
+              right: 20,
+              bottom: 10,
+              left: 10
+            }
+          },
+          responsive: true,
+          maintainAspectRatio: false,
+        },
+      });
+    }
+
+    function stabilizeAlloy() {
+      const plannedAlloy = document.getElementById("plannedAlloy").value;
+      if (!plannedAlloy) return;
+
+      const ratios = alloyRatios[plannedAlloy];
+      const totalRatio = Object.values(ratios).reduce((sum, ratio) => sum + ratio, 0);
+
+      const oreInputs = document.querySelectorAll(".ore-input");
+      let baseMetal = null;
+      let baseAmount = 0;
+
+      // Identify the base metal and its amount
+      oreInputs.forEach(input => {
+        const metal = input.querySelector(".ore-select").value;
+        const amountStr = input.querySelector(".ore-amount").value;
+        const amount = parseVolume(amountStr) || 0;
+        if (ratios[metal] && amount > 0 && !input.dataset.userAdded) {
+          baseMetal = metal;
+          baseAmount = amount;
+        }
+      });
+
+      if (!baseMetal) return;
+
+      // Adjust or add missing metals dynamically
+      Object.entries(ratios).forEach(([metal, ratio]) => {
+        if (metal === baseMetal) return;
+
+        const requiredAmount = ((ratio / ratios[baseMetal]) * baseAmount).toFixed(2);
+        const existingInput = Array.from(oreInputs).find(
+          input => input.querySelector(".ore-select").value === metal
+        );
+
+        if (existingInput) {
+          const userInput = existingInput.querySelector(".ore-amount");
+          const userSelect = existingInput.querySelector(".ore-select");
+          if (!userInput.dataset.userInput && !userSelect.dataset.userInteracting) {
+            userInput.value = requiredAmount;
+          }
+        } else {
+          addOrUpdateOreInput(metal, requiredAmount, true);
+        }
+      });
+
+      calculateAlloy(); // Update the alloy result
+    }
+
+    function addOrUpdateOreInput(metal, amount, isPlannerAdded = false) {
+      const div = document.createElement("div");
+      div.className = "ore-input";
+      div.dataset.userAdded = !isPlannerAdded; // Mark ores added by the user
+      div.innerHTML = `
+        <select class="ore-select" ${isPlannerAdded ? 'data-planner-added="true"' : ''} 
+          onfocus="markUserInteraction(this)" onblur="unmarkUserInteraction(this)">
+          <option value="Copper" ${metal === "Copper" ? "selected" : ""}>[Cu] Copper</option>
+          <option value="Tin" ${metal === "Tin" ? "selected" : ""}>[Sn] Tin</option>
+          <option value="Zinc" ${metal === "Zinc" ? "selected" : ""}>[Zn] Zinc</option>
+          <option value="Bismuth" ${metal === "Bismuth" ? "selected" : ""}>[Bi] Bismuth</option>
+          <option value="Gold" ${metal === "Gold" ? "selected" : ""}>[Au] Gold</option>
+          <option value="Silver" ${metal === "Silver" ? "selected" : ""}>[Ag] Silver</option>
+          <option value="Nickel" ${metal === "Nickel" ? "selected" : ""}>[Ni] Nickel</option>
+          <option value="Steel" ${metal === "Steel" ? "selected" : ""}>[St] Steel</option>
+          <option value="Black Steel" ${metal === "Black Steel" ? "selected" : ""}>[StNiBB] Black Steel</option>
+          <option value="Black Bronze" ${metal === "Black Bronze" ? "selected" : ""}>[CuAuAg] Black Bronze</option>
+          <option value="Bismuth Bronze" ${metal === "Bismuth Bronze" ? "selected" : ""}>[CuBiSn] Bismuth Bronze</option>
+          <option value="Brass" ${metal === "Brass" ? "selected" : ""}>[CuZn] Brass</option>
+          <option value="Rose Gold" ${metal === "Rose Gold" ? "selected" : ""}>[CuAu] Rose Gold</option>
+          <option value="Sterling Silver" ${metal === "Sterling Silver" ? "selected" : ""}>[CuAg] Sterling Silver</option>
+        </select>
+        <input type="text" placeholder="Amount (Mb or B)" class="ore-amount" value="${amount}" 
+          ${isPlannerAdded ? 'data-planner-added="true"' : ''} onblur="markUserInput(this)">
+        <button class="remove-ore" onclick="removeOreInput(this)">Remove</button>
+      `;
+      document.getElementById("oreContainer").appendChild(div);
+    }
+
+    function markUserInput(input) {
+      input.dataset.userInput = true; // Mark the input as user-modified
+      stabilizeAlloy(); // Recalculate after user finishes input
+    }
+
+    function markUserInteraction(select) {
+      select.dataset.userInteracting = true; // Mark the select as being interacted with
+    }
+
+    function unmarkUserInteraction(select) {
+      delete select.dataset.userInteracting; // Remove the interaction marker
+    }
+
+    function addOreInput() {
+      const div = document.createElement("div");
+      div.className = "ore-input";
+      div.style.opacity = '0';
+      div.innerHTML = `
+        <select class="ore-select">
+          <option value="Copper">[Cu] Copper</option>
+          <option value="Tin">[Sn] Tin</option>
+          <option value="Zinc">[Zn] Zinc</option>
+          <option value="Bismuth">[Bi] Bismuth</option>
+          <option value="Gold">[Au] Gold</option>
+          <option value="Silver">[Ag] Silver</option>
+          <option value="Nickel">[Ni] Nickel</option>
+          <option value="Steel">[St] Steel</option>
+          <option value="Black Steel">[StNiBB] Black Steel</option>
+          <option value="Black Bronze">[CuAuAg] Black Bronze</option>
+          <option value="Bismuth Bronze">[CuBiSn] Bismuth Bronze</option>
+          <option value="Brass">[CuZn] Brass</option>
+          <option value="Rose Gold">[CuAu] Rose Gold</option>
+          <option value="Sterling Silver">[CuAg] Sterling Silver</option>
+        </select>
+        <input type="text" placeholder="Amount (Mb or B)" class="ore-amount" oninput="stabilizeAlloy()">
+        <button class="remove-ore" onclick="removeOreInput(this)">Remove</button>
+      `;
+      document.getElementById("oreContainer").appendChild(div);
+      requestAnimationFrame(() => div.style.opacity = '1');
+    }
+
+    function removeOreInput(button) {
+      const parent = button.parentElement;
+      parent.classList.add('removing');
+      parent.addEventListener('animationend', () => {
+        parent.remove();
+        stabilizeAlloy();
+      });
+    }
+
+    const oreContainer = document.getElementById('oreContainer');
+
+    document.getElementById('oreContainer').addEventListener('input', calculateAlloy);
+
+    function parseVolume(input) {
+      if (!input) return 0;
+      input = input.toString().toLowerCase().trim();
+      if (input.includes('b')) {
+        const buckets = parseFloat(input.replace('b', ''));
+        return buckets * 1000; // Convert buckets to millibuckets
+      }
+      return parseFloat(input.replace('mb', '')) || 0; // Handle millibuckets, strip 'mb' if present
+    }
+
+    function updateResults(resultText, elementId) {
+      const element = document.getElementById(elementId);
+      element.classList.add('updating');
+      element.innerHTML = resultText;
+      element.addEventListener('animationend', () => {
+        element.classList.remove('updating');
+      }, { once: true });
+    }
+
+    function calculateAlloy() {
+      const selects = document.querySelectorAll('.ore-select');
+      const amounts = document.querySelectorAll('.ore-amount');
+      let total = 0;
+      let oreData = [];
+
+      for (let i = 0; i < selects.length; i++) {
+        const ore = selects[i].value;
+        const amountStr = amounts[i].value;
+        const amount = parseVolume(amountStr);
+        if (!isNaN(amount)) {
+          total += amount;
+          oreData.push({ ore, amount });
+        }
+      }
+
+      let resultText = `Total Volume: ${total}Mb (${(total / 1000).toFixed(2)}B)<br>`;
+      resultText += `Total Ingots: ${(total / 100).toFixed(0)}<br>`;
+      resultText += `Composition:<br>`;
+
+      const composition = {};
+      for (const { ore, amount } of oreData) {
+        const percentage = ((amount / total) * 100).toFixed(2);
+        resultText += `${ore} ${amount}Mb (${percentage}%)<br>`;
+        composition[ore] = parseFloat(percentage);
+      }
+
+      let identifiedAlloy = identifyAlloy(composition);
+
+      // If only one metal is inputted, return the metal name
+      if (Object.keys(composition).length === 1) {
+        identifiedAlloy = Object.keys(composition)[0];
+      }
+
+      resultText += `<br><strong>Resulting Alloy: ${identifiedAlloy}</strong>`;
+      updateResults(resultText, 'alloyResult');
+
+      updateOreChart(composition); // Update ore chart
+    }
+
+    function identifyAlloy(comp) {
+      const Cu = comp['Copper'] || 0;
+      const Sn = comp['Tin'] || 0;
+      const Zn = comp['Zinc'] || 0;
+      const Bi = comp['Bismuth'] || 0;
+      const Au = comp['Gold'] || 0;
+      const Ag = comp['Silver'] || 0;
+      const Ni = comp['Nickel'] || 0;
+      const St = comp['Steel'] || 0;
+      const BS = comp['Black Steel'] || 0;
+      const BB = comp['Black Bronze'] || 0;
+      const BiB = comp['Bismuth Bronze'] || 0;
+      const Br = comp['Brass'] || 0;
+      const RG = comp['Rose Gold'] || 0;
+      const SS = comp['Sterling Silver'] || 0;
+
+      if (Cu >= 88 && Cu <= 92 && Sn >= 8 && Sn <= 12 && Object.keys(comp).length === 2) return 'Bronze';
+      if (Cu >= 50 && Cu <= 65 && Zn >= 20 && Zn <= 30 && Bi >= 10 && Bi <= 20 && Object.keys(comp).length === 3) return 'Bismuth Bronze';
+      if (Cu >= 50 && Cu <= 70 && Au >= 10 && Au <= 25 && Ag >= 10 && Ag <= 25 && Object.keys(comp).length === 3) return 'Black Bronze';
+      if (Cu >= 88 && Cu <= 92 && Zn >= 8 && Zn <= 12 && Object.keys(comp).length === 2) return 'Brass';
+      if (Cu >= 15 && Cu <= 30 && Au >= 70 && Au <= 85 && Object.keys(comp).length === 2) return 'Rose Gold';
+      if (Ag >= 60 && Ag <= 80 && Cu >= 20 && Cu <= 40 && Object.keys(comp).length === 2) return 'Sterling Silver';
+      if (St >= 50 && St <= 70 && Ni >= 15 && Ni <= 25 && BB >= 15 && BB <= 25 && Object.keys(comp).length === 3) return 'Weak Black Steel';
+      if (BS >= 50 && BS <= 55 && BiB >= 10 && BiB <= 15 && SS >= 10 && SS <= 15 && St >= 20 && St <= 25 && Object.keys(comp).length === 4) return 'Weak Blue Steel';
+      if (BS >= 50 && BS <= 55 && RG >= 10 && RG <= 15 && Br >= 10 && Br <= 15 && St >= 20 && St <= 25 && Object.keys(comp).length === 4) return 'Weak Red Steel';
+
+      return 'Unknown Alloy';
+    }
+
+    function updateAlloyRatio() {
+      const slider = document.getElementById('alloyRatioSlider');
+      const label = document.getElementById('alloyRatioLabel');
+      const alloy = document.getElementById('alloyType').value;
+
+      let minRatio, maxRatio, primaryMetal, secondaryMetal;
+
+      switch (alloy) {
+        case 'Bronze':
+          minRatio = 88; maxRatio = 92;
+          primaryMetal = '[Cu] Copper'; secondaryMetal = '[Sn] Tin';
+          break;
+        case 'Bismuth Bronze':
+          minRatio = 50; maxRatio = 65;
+          primaryMetal = '[Cu] Copper'; secondaryMetal = '[Zn] Zinc + [Bi] Bismuth';
+          break;
+        case 'Black Bronze':
+          minRatio = 50; maxRatio = 70;
+          primaryMetal = '[Cu] Copper'; secondaryMetal = '[Au] Gold + [Ag] Silver';
+          break;
+        case 'Brass':
+          minRatio = 88; maxRatio = 92;
+          primaryMetal = '[Cu] Copper'; secondaryMetal = '[Zn] Zinc';
+          break;
+        case 'Rose Gold':
+          minRatio = 15; maxRatio = 30;
+          primaryMetal = '[Cu] Copper'; secondaryMetal = '[Au] Gold';
+          break;
+        case 'Sterling Silver':
+          minRatio = 60; maxRatio = 80;
+          primaryMetal = '[Ag] Silver'; secondaryMetal = '[Cu] Copper';
+          break;
+        case 'Weak Black Steel':
+          minRatio = 50; maxRatio = 70;
+          primaryMetal = '[St] Steel'; secondaryMetal = '[Ni] Nickel + [CuAuAg] Black Bronze';
+          break;
+        case 'Weak Blue Steel':
+          minRatio = 50; maxRatio = 55;
+          primaryMetal = '[St] Black Steel'; secondaryMetal = '[CuBiSn] Bismuth Bronze + [CuAg] Sterling Silver + [St] Steel';
+          break;
+        case 'Weak Red Steel':
+          minRatio = 50; maxRatio = 55;
+          primaryMetal = '[St] Black Steel'; secondaryMetal = '[CuAu] Rose Gold + [CuZn] Brass + [St] Steel';
+          break;
+      }
+
+      const ratio = slider.value;
+      const adjustedPrimary = ((minRatio + (maxRatio - minRatio) * (ratio / 100))).toFixed(2);
+      const adjustedSecondary = (100 - adjustedPrimary).toFixed(2);
+
+      label.textContent = `${primaryMetal}: ${adjustedPrimary}% / ${secondaryMetal}: ${adjustedSecondary}%`;
+      calculateOres(true); // Pass true to disable animation
+    }
+
+    function resetRatio() {
+      const slider = document.getElementById('alloyRatioSlider');
+      slider.value = 50;
+      updateAlloyRatio(); // Reset ratio and update calculations
+    }
+
+    function calculateOres(disableAnimation = false) {
+      const alloy = document.getElementById('alloyType').value;
+      const amountStr = document.getElementById('alloyAmount').value;
+      const total = parseVolume(amountStr);
+      const slider = document.getElementById('alloyRatioSlider');
+      const ratio = slider.value;
+
+      let resultText = `Total Volume: ${total}Mb (${(total / 1000).toFixed(2)}B)<br>`;
+      resultText += `Total Ingots: ${(total / 100).toFixed(0)}<br>`;
+
+      let components = [];
+
+      switch (alloy) {
+        case 'Bronze':
+          components = [
+            { name: '[Cu] Copper', percent: (88 + (92 - 88) * (ratio / 100)) },
+            { name: '[Sn] Tin', percent: (12 - (92 - 88) * (ratio / 100)) },
+          ];
+          break;
+        case 'Bismuth Bronze':
+          components = [
+            { name: '[Cu] Copper', percent: (50 + (65 - 50) * (ratio / 100)) },
+            { name: '[Zn] Zinc', percent: (20 + (30 - 20) * (ratio / 100)) },
+            { name: '[Bi] Bismuth', percent: (10 + (20 - 10) * (ratio / 100)) }
+          ];
+          break;
+        case 'Black Bronze':
+          components = [
+            { name: '[Cu] Copper', percent: (50 + (70 - 50) * (ratio / 100)) },
+            { name: '[Au] Gold', percent: ((100 - (50 + (70 - 50) * (ratio / 100))) / 2) },
+            { name: '[Ag] Silver', percent: ((100 - (50 + (70 - 50) * (ratio / 100))) / 2) },
+          ];
+          break;
+        case 'Brass':
+          components = [
+            { name: '[Cu] Copper', percent: (88 + (92 - 88) * (ratio / 100)) },
+            { name: '[Zn] Zinc', percent: (12 - (92 - 88) * (ratio / 100)) },
+          ];
+          break;
+        case 'Rose Gold':
+          components = [
+            { name: '[Cu] Copper', percent: (15 + (30 - 15) * (ratio / 100)) },
+            { name: '[Au] Gold', percent: (85 - (30 - 15) * (ratio / 100)) },
+          ];
+          break;
+        case 'Sterling Silver':
+          components = [
+            { name: '[Ag] Silver', percent: (60 + (80 - 60) * (ratio / 100)) },
+            { name: '[Cu] Copper', percent: (40 - (80 - 60) * (ratio / 100)) },
+          ];
+          break;
+        case 'Weak Black Steel':
+          components = [
+            { name: '[St] Steel', percent: (50 + (70 - 50) * (ratio / 100)) },
+            { name: '[Ni] Nickel', percent: ((100 - (50 + (70 - 50) * (ratio / 100))) / 2) },
+            { name: '[CuAuAg] Black Bronze', percent: ((100 - (50 + (70 - 50) * (ratio / 100))) / 2) },
+          ];
+          break;
+        case 'Weak Blue Steel':
+          components = [
+            { name: '[StNiBB] Black Steel', percent: (50 + (55 - 50) * (ratio / 100)) },
+            { name: '[CuBiSn] Bismuth Bronze', percent: (10 + (15 - 10) * (ratio / 100)) },
+            { name: '[CuAg] Sterling Silver', percent: (10 + (15 - 10) * (ratio / 100)) },
+            { name: '[St] Steel', percent: (20 + (25 - 20) * (ratio / 100)) }
+          ];
+          break;
+        case 'Weak Red Steel':
+          components = [
+            { name: '[StNiBB] Black Steel', percent: (50 + (55 - 50) * (ratio / 100)) },
+            { name: '[CuAu] Rose Gold', percent: (10 + (15 - 10) * (ratio / 100)) },
+            { name: '[CuZn] Brass', percent: (10 + (15 - 10) * (ratio / 100)) },
+            { name: '[St] Steel', percent: (20 + (25 - 20) * (ratio / 100)) }
+          ];
+          break;
+      }
+
+      components.forEach(comp => {
+        const mb = ((comp.percent / 100) * total).toFixed(2);
+        resultText += formatComponentResult(comp, mb);
+      });
+
+      updateResults(resultText, 'oreResult');
+      updateAlloyChart(components); // Update chart with optional animation control
+    }
+
+    function formatComponentResult(comp, mb) {
+      const metalName = comp.name.match(/\[(.*?)\]\s*(.*)/)[2];
+      const isOre = ORES.includes(metalName);
+      
+      // Initialize or get metal-specific measurement states
+      if (!metalMeasurementStates.has(metalName)) {
+        metalMeasurementStates.set(metalName, JSON.parse(JSON.stringify(MEASUREMENTS_DEFAULT)));
+      }
+      const metalMeasurements = metalMeasurementStates.get(metalName);
+      
+      const existingEntry = document.querySelector(`[data-metal="${metalName}"]`);
+      const isExpanded = existingEntry?.querySelector('.measurements')?.classList.contains('expanded');
+      
+      const toggleButtons = isOre ? 
+        `<div class="measurement-toggles">
+          <button class="toggle-unit ${metalMeasurements.ingot.enabled ? 'active' : ''}" 
+            onclick="toggleMeasurement('ingot', this, '${metalName}')">[Ingots]</button>
+          <button class="toggle-unit ${metalMeasurements.briquette.enabled ? 'active' : ''}" 
+            onclick="toggleMeasurement('briquette', this, '${metalName}')">[Briquettes]</button>
+          <button class="toggle-unit ${metalMeasurements.pellet.enabled ? 'active' : ''}" 
+            onclick="toggleMeasurement('pellet', this, '${metalName}')">[Pellets]</button>
+          <button class="toggle-unit ${metalMeasurements.powder.enabled ? 'active' : ''}" 
+            onclick="toggleMeasurement('powder', this, '${metalName}')">[Powders]</button>
+        </div>` : 
+        `<div class="measurement-toggles">
+          <button class="toggle-unit ${metalMeasurements.ingot.enabled ? 'active' : ''}" 
+            onclick="toggleMeasurement('ingot', this, '${metalName}')">[Ingots]</button>
+        </div>`;
+      
+      return `
+        <div class="metal-entry" data-metal="${metalName}">
+          ${comp.name}: ~${mb}Mb (${comp.percent.toFixed(1)}%)
+          ${toggleButtons}
+          <span class="toggle-measurements ${isExpanded ? 'expanded' : ''}" onclick="toggleMeasurements(this)">↓</span>
+          <div class="measurements ${isExpanded ? 'expanded' : ''}">
+            ${formatOptimizedMeasurements(parseFloat(mb), metalName)}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleMeasurement(unit, button, metalName) {
+      const metalMeasurements = metalMeasurementStates.get(metalName);
+      const wasEnabled = metalMeasurements[unit].enabled;
+      metalMeasurements[unit].enabled = !wasEnabled;
+      
+      button.style.setProperty('--final-opacity', wasEnabled ? '0.6' : '1');
+      button.classList.add('clicked');
+      button.classList.toggle('active');
+      
+      button.addEventListener('animationend', () => {
+        button.classList.remove('clicked');
+      }, { once: true });
+      
+      // Only update the specific metal entry
+      const metalEntry = button.closest('.metal-entry');
+      const measurements = metalEntry.querySelector('.measurements');
+      const mb = parseFloat(metalEntry.textContent.match(/~([\d.]+)Mb/)[1]);
+      measurements.innerHTML = formatOptimizedMeasurements(mb, metalName);
+    }
+
+    function optimizeOreMeasurements(mb, metalName) {
+      const metalMeasurements = metalMeasurementStates.get(metalName);
+      const enabledUnits = Object.entries(metalMeasurements)
+        .filter(([_, props]) => props.enabled)
+        .reduce((acc, [unit, props]) => {
+          acc[unit] = props.size;
+          return acc;
+        }, {});
+      
+      let remaining = mb;
+      const result = {};
+      
+      Object.entries(enabledUnits).forEach(([unit, size]) => {
+        if (remaining >= size) {
+          result[unit] = Math.floor(remaining / size);
+          remaining = remaining % size;
+        }
+      });
+      
+      result.remaining = parseFloat(remaining.toFixed(2));
+      return result;
+    }
+
+    function optimizeAlloyMeasurements(mb, metalName) {
+      const metalMeasurements = metalMeasurementStates.get(metalName);
+      if (!metalMeasurements.ingot.enabled) {
+        return { remaining: mb };
+      }
+
+      const ingotSize = metalMeasurements.ingot.size;
+      const ingots = Math.floor(mb / ingotSize);
+      const remaining = parseFloat((mb % ingotSize).toFixed(2));
+      
+      return {
+        ingot: ingots > 0 ? ingots : null,
+        remaining: remaining
+      };
+    }
+
+    function formatOptimizedMeasurements(mb, metalName) {
+      const isOre = ORES.includes(metalName);
+      const measurements = isOre ? 
+        optimizeOreMeasurements(mb, metalName) : 
+        optimizeAlloyMeasurements(mb, metalName);
+      const parts = [];
+      
+      if (measurements.ingot) {
+        parts.push(`${measurements.ingot} ingot${measurements.ingot > 1 ? 's' : ''} (${measurements.ingot * 100}Mb)`);
+      }
+      
+      if (isOre) {
+        if (measurements.briquette) {
+          parts.push(`${measurements.briquette} briquette${measurements.briquette > 1 ? 's' : ''} (${measurements.briquette * 80}Mb)`);
+        }
+        if (measurements.pellet) {
+          parts.push(`${measurements.pellet} pellet${measurements.pellet > 1 ? 's' : ''} (${measurements.pellet * 20}Mb)`);
+        }
+        if (measurements.powder) {
+          parts.push(`${measurements.powder} powder${measurements.powder > 1 ? 's' : ''} (${measurements.powder * 5}Mb)`);
+        }
+      }
+      
+      if (measurements.remaining > 0) {
+        parts.push(`${measurements.remaining}Mb of ${metalName} remaining`);
+      }
+      
+      return parts.join(' + ');
+    }
+
+    function toggleMeasurements(element) {
+      const measurementsDiv = element.nextElementSibling;
+      element.classList.toggle('expanded');
+      measurementsDiv.classList.toggle('expanded');
+    }
+
+    function recalculateOptimizations(preserveState = false) {
+      if (!preserveState) {
+        // Only reset if not preserving state
+        document.querySelectorAll('.measurements').forEach(m => m.classList.remove('expanded'));
+        document.querySelectorAll('.toggle-measurements').forEach(t => t.classList.remove('expanded'));
+      }
+      calculateAlloy();
+      calculateOres();
+    }
+
+    document.getElementById('alloyType').addEventListener('change', updateAlloyRatio);
+    document.getElementById('alloyAmount').addEventListener('input', updateAlloyRatio);
+    document.getElementById('alloyRatioSlider').addEventListener('input', updateAlloyRatio);
+
+    function updatePlannedAlloy() {
+      const plannedAlloy = document.getElementById("plannedAlloy").value;
+      const plannerResult = document.getElementById("plannerResult");
+      if (!plannedAlloy) {
+        plannerResult.innerHTML = "";
+        return;
+      }
+
+      plannerResult.innerHTML = `
+        <div id="plannerComposition"></div>
+      `;
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const themeText = document.getElementById('theme-text');
+      const sunPaths = document.querySelectorAll('.sun');
+      const moonPath = document.querySelector('.moon');
+      
+      if (html.getAttribute('data-theme') === 'dark') {
+        html.removeAttribute('data-theme');
+        themeText.textContent = 'Dark Mode';
+        sunPaths.forEach(path => path.style.display = 'block');
+        moonPath.style.display = 'none';
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        themeText.textContent = 'Light Mode';
+        sunPaths.forEach(path => path.style.display = 'none');
+        moonPath.style.display = 'block';
+      }
+      
+      // Refresh charts to update colors
+      if (oreChart) {
+        calculateAlloy();
+      }
+      if (alloyChart) {
+        calculateOres();
+      }
+    }
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  </script>
+  <footer>
+    <span>Created by <span class="author">baiorettoo</span></span>
+    <span>•</span>
+    <span class="beta-text">This project is currently in Beta. Your feedback is welcome!</span>
+  </footer>
+  <button class="theme-toggle" onclick="toggleTheme()">
+    <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path class="sun" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      <circle class="sun" cx="12" cy="12" r="5"/>
+      <path class="moon" style="display:none" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+    </svg>
+    <span id="theme-text">Dark Mode</span>
+  </button>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # TFC-AlloyCalculator
 
-A lightweight, HTML-based alloy calculator for the **TerraFirmaCraft (TFC)** Minecraft mod. This tool is designed to help players efficiently test, plan, and visualize alloy combinations, whether for experimentation or practical gameplay use.
+A lightweight, HTML-based alloy calculator for modded **TerraFirmaCraft (TFC)** Minecraft. Specifically ones that use **TFC Ore Washing** (e.g., HTFC3). This tool is designed to help players efficiently test, plan, and visualize alloy combinations, whether for experimentation or practical gameplay use.
 
 ## Features
 
